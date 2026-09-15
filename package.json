@@ -1,0 +1,88 @@
+{
+  "name": "vite-project",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "vite --port 8848",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.ts --fix",
+    "lint:stylelint": "stylelint src/**/*.{html,css,less} --fix --max-warnings 0",
+    "format": "prettier --write \"./**/*.{html,vue,ts,js,json}\"",
+    "prepare": "husky install",
+    "lint:css": "stylelint **/*.{vue,css,sass,scss} --fix",
+    "lint-staged": "lint-staged --allow-empty"
+  },
+  "lint-staged": {
+    "src/**/*.{js,vue,ts,jsx,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "src/**/*.{vue,less,postcss,css,scss}": [
+      "stylelint  --fix"
+    ],
+    "src/**/*.{html,css,less,scss,md}": [
+      "prettier --write"
+    ]
+  },
+  "pnpm": {
+    "overrides": {
+      "stylelint-config-html": "1.1.0",
+      "stylelint-config-recommended": "13.0.0"
+    }
+  },
+  "dependencies": {
+    "vue": "^3.5.3",
+    "vue-router": "^4.2.4"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.6.3",
+    "@commitlint/config-conventional": "^17.6.3",
+    "@types/lodash": "^4.17.7",
+    "@types/node": "^20.11.5",
+    "@typescript-eslint/eslint-plugin": "^5.59.6",
+    "@typescript-eslint/parser": "^5.59.6",
+    "@vitejs/plugin-vue": "^4.5.2",
+    "@vitejs/plugin-vue-jsx": "^3.1.0",
+    "@vueuse/core": "^10.7.2",
+    "axios": "^1.6.5",
+    "element-plus": "^2.5.1",
+    "eslint": "^8.56.0",
+    "eslint-config-mature": "^0.3.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-vue": "^9.20.1",
+    "husky": "^8.0.0",
+    "jquery": "^3.7.1",
+    "js-cookie": "^3.0.5",
+    "less": "^4.2.0",
+    "lint-staged": "^13.2.2",
+    "lodash": "^4.17.21",
+    "pinia": "^2.1.7",
+    "postcss": "^8.4.30",
+    "postcss-html": "^1.8.0",
+    "postcss-less": "^6.0.0",
+    "postcss-preset-env": "^9.3.0",
+    "prettier": "^2.8.8",
+    "rollup-plugin-external-globals": "^0.9.1",
+    "sass": "^1.78.0",
+    "stylelint": "^15.10.3",
+    "stylelint-config-recommended-less": "^2.0.0",
+    "stylelint-config-recommended-vue": "^1.5.0",
+    "stylelint-config-standard": "^34.0.0",
+    "stylelint-config-standard-less": "^2.0.0",
+    "stylelint-less": "^2.0.0",
+    "stylelint-order": "^6.0.4",
+    "terser": "^5.26.0",
+    "typescript": "5.3.3",
+    "unplugin-auto-import": "^0.17.3",
+    "unplugin-vue-components": "^0.26.0",
+    "vant": "^4.8.2",
+    "vite": "^5.0.8",
+    "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-svg-icons": "^2.0.1",
+    "vue-draggable-plus": "^0.6.1",
+    "vue-tsc": "^1.8.27",
+    "xlsx": "^0.18.5"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "eslint.options": {
+    "extensions": [".ts", ".js", ".vue"]
+  },
+  "editor.formatOnSave": true,
+  "eslint.validate": ["javascript", "vue"],
+  "stylelint.validate": ["css", "less", "scss", "vue"],
+  "editor.tabSize": 2,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "eslint.autoFixOnSave": "explicit",
+    "source.fixAll.stylelint": "explicit"
+  },
+  "json.schemaDownload.enable": false
+}

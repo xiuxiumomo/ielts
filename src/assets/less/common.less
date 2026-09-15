@@ -1,0 +1,53 @@
+body {
+  font-family: "Microsoft YaHei", Helvetica, Arial, Verdana, Tahoma, sans-serif;
+  font-size: var(--base-font-size-14);
+  background-color: var(--base-gray-2);
+}
+
+.flex-box {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+
+  &.flex-start {
+    justify-content: flex-start;
+  }
+}
+
+.wrap {
+  width: 1200px;
+  margin: 0 auto;
+}
+
+/* 单行文本省略号 */
+.s-ellipsis,
+.ellipse-1,
+.ellipsis-1 {
+  .ellipsis();
+}
+
+.ellipse-2 {
+  .ellipsis-line(2);
+}
+
+.fl {
+  float: left;
+}
+
+.fr {
+  float: right;
+}
+// 清除浮动
+.clearfix,
+.clear {
+  .clear-fix();
+}
+
+//全局disabled
+.disabled {
+  pointer-events: none;
+  cursor: not-allowed !important;
+  background-color: var(--base-white);
+  opacity: 0.5;
+}

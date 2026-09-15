@@ -1,0 +1,49 @@
+/**
+如何使用mixin
+//example
+.width(18px);
+
+**/
+.width(@width) {
+  width: @width;
+}
+.height(@h: 18px) {
+  height: @h;
+}
+.text-color(@color: #666) {
+  color: @color;
+}
+// 一行超出隐藏
+.ellipsis() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+//多行超出隐藏
+
+.ellipsis-line(@line: 2) {
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: @line;
+}
+//清除浮动
+.clear-fix() {
+  *zoom: 1;
+
+  &::after {
+    display: block;
+    height: 0;
+    clear: both;
+    content: "";
+    visibility: hidden;
+  }
+}
+//背景图
+
+.bg-img(@url) {
+  background: url(@url) no-repeat center center;
+  background-size: cover;
+}
