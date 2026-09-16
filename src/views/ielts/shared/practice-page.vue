@@ -9,17 +9,39 @@
         </div>
         <span class="course-label">IELTS <span>/</span> 词汇练习</span>
       </header>
+      <section class="mode-entry" aria-label="练习模式">
+        <div>
+          <strong>{{
+            isTypingMode ? "打字模式 · 听见，也记住" : "试试打字，让记忆落在指尖"
+          }}</strong>
+          <p>
+            {{
+              isTypingMode
+                ? "听一遍，输入英文句子；上一题、下一题均随机抽取。"
+                : "听音填空 · 忽略标点 · 按键音效"
+            }}
+          </p>
+        </div>
+        <el-button
+          type="primary"
+          size="large"
+          @click="router.push({ name: isTypingMode ? 'home' : 'typing' })"
+        >
+          {{ isTypingMode ? "返回排序模式" : "进入打字模式" }}
+        </el-button>
+      </section>
       <section class="study-card" aria-label="单词练习">
         <p v-if="loading" class="state-message" role="status">正在翻开你的单词本...</p>
         <div v-else-if="loadError" class="state-message" role="alert">
           <p>{{ loadError }}</p>
-          <ElButton type="primary" @click="loadQuestions">重新加载</ElButton>
+          <el-button type="primary" @click="loadQuestions">重新加载</el-button>
         </div>
         <template v-else-if="currentQuestion">
           <div class="question-toolbar">
             <div class="question-heading">
               <span class="lesson-label"
-                >单词与语境 <span class="toolbar-divider">/</span>
+                >{{ isTypingMode ? "听音打字" : "单词与语境" }}
+                <span class="toolbar-divider">/</span>
                 <strong>{{ String(currentIndex + 1).padStart(2, "0") }}</strong>
                 <span class="total-count">/ {{ questionList.length }}</span></span
               >
@@ -51,18 +73,17 @@
               isCurrentCompleted ? "已完成 · 可以再次温习" : "专注当下这一题"
             }}</span>
           </div>
-          <WordSort
-            ref="wordSortRef"
+          <slot
             :question="currentQuestion"
             :completed="isCurrentCompleted"
-            @success="onSuccess"
+            :on-success="onSuccess"
           />
           <footer class="lesson-footer">
-            <ElButton class="reset-button" text @click="resetCurrent">重新练习</ElButton>
+            <el-button class="reset-button" text @click="emit('reset')">重新练习</el-button>
             <div class="navigation">
-              <ElButton @click="prevQuestion">上一题</ElButton>
-              <ElButton type="primary" @click="nextQuestion"
-                >下一题 <span aria-hidden="true">→</span></ElButton
+              <el-button @click="prevQuestion">上一题</el-button>
+              <el-button type="primary" @click="nextQuestion"
+                >下一题 <span aria-hidden="true">→</span></el-button
               >
             </div>
           </footer>
@@ -79,124 +100,27 @@
 </template>
 
 <script setup lang="ts">
-import axios from "axios";
-import { ElButton, ElMessage } from "element-plus";
-import { computed, onMounted, ref } from "vue";
-import * as XLSX from "xlsx";
-import WordSort, { type WordSortQuestion } from "./components/words-sort.vue";
+import { computed } from "vue";
+import { useRouter } from "vue-router";
+import { usePractice } from "@/composables/use-practice";
+import type { TPracticeMode } from "@/types/practice";
 
-const wordSortRef = ref<InstanceType<typeof WordSort> | null>(null);
-const STORAGE_KEY = "ielts-vocab-completed";
-
-// 读取已完成题目的核心单词
-const completedKeywords = ref<string[]>([]);
-try {
-  const data = localStorage.getItem(STORAGE_KEY);
-  if (data) {
-    const parsed: unknown = JSON.parse(data);
-    if (Array.isArray(parsed)) {
-      completedKeywords.value = parsed.filter((item): item is string => typeof item === "string");
-    }
-  }
-} catch (e) {
-  console.error("Failed to load completed questions", e);
-}
-
-// 题目数组（改为从 Excel 加载）
-const questionList = ref<WordSortQuestion[]>([]);
-const currentIndex = ref(0);
-const currentQuestion = computed<WordSortQuestion | undefined>(
-  () => questionList.value[currentIndex.value]
-);
-const loading = ref(true);
-const loadError = ref("");
-
-// 从 public 目录加载 Excel 并解析
-const loadQuestions = async () => {
-  loading.value = true;
-  loadError.value = "";
-  try {
-    const res = await axios.get(`${import.meta.env.BASE_URL}iets.xlsx`, {
-      responseType: "arraybuffer",
-    });
-    const workbook = XLSX.read(res.data, { type: "array" });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    if (!sheet) throw new Error("Excel 中没有可用工作表");
-    const data = XLSX.utils.sheet_to_json<WordSortQuestion>(sheet);
-    questionList.value = data
-      .map((item) => ({
-        answer: String(item.answer ?? "")
-          .trim()
-          .replace(/\s+/g, " "),
-        keyword: String(item.keyword ?? "").trim(),
-        chinese: String(item.chinese ?? ""),
-        phonetic: String(item.phonetic ?? ""),
-        example: String(item.example ?? ""),
-      }))
-      .filter((item) => item.answer && item.keyword);
-    currentIndex.value = 0;
-  } catch (e) {
-    console.error("Failed to load questions from Excel", e);
-    loadError.value = "题目加载失败，请检查 iets.xlsx 文件";
-    ElMessage.error(loadError.value);
-  } finally {
-    loading.value = false;
-  }
-};
-
-onMounted(() => {
-  loadQuestions();
-});
-
-// 答对触发
-const onSuccess = () => {
-  if (!currentQuestion.value) return;
-
-  ElMessage.success({
-    message: "本题完成，可以进入下一题！",
-    duration: 2000,
-  });
-
-  const keyword = currentQuestion.value.keyword;
-  if (!completedKeywords.value.includes(keyword)) {
-    completedKeywords.value.push(keyword);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(completedKeywords.value));
-    } catch (e) {
-      console.error("Failed to save completed questions", e);
-      ElMessage.warning("本题已完成，但进度保存失败");
-    }
-  }
-};
-
-// 判断当前题是否已完成
-const isCurrentCompleted = computed(() => {
-  const question = currentQuestion.value;
-  return question ? completedKeywords.value.includes(question.keyword) : false;
-});
-
-// 切换上一题
-const prevQuestion = () => {
-  if (!questionList.value.length) return;
-  currentIndex.value -= 1;
-  if (currentIndex.value < 0) {
-    currentIndex.value = questionList.value.length - 1;
-  }
-};
-
-// 随机切换下一题，避免抽到当前题目
-const nextQuestion = () => {
-  const total = questionList.value.length;
-  if (total <= 1) return;
-
-  const randomIndex = Math.floor(Math.random() * (total - 1));
-  currentIndex.value = randomIndex >= currentIndex.value ? randomIndex + 1 : randomIndex;
-};
-
-// 重置当前题目
-const resetCurrent = () => {
-  wordSortRef.value?.reset();
-};
+const props = defineProps<{ mode: TPracticeMode }>();
+const emit = defineEmits<{ reset: [] }>();
+const router = useRouter();
+const isTypingMode = computed(() => props.mode === "typing");
+const {
+  questionList,
+  currentIndex,
+  currentQuestion,
+  loading,
+  loadError,
+  isCurrentCompleted,
+  loadQuestions,
+  onSuccess,
+  nextQuestion,
+  prevQuestion,
+} = usePractice(() => props.mode);
 </script>
 
 <style scoped lang="less">
@@ -270,6 +194,36 @@ h1 span {
 .course-label span {
   margin: 0 6px;
   color: #a5afa3;
+}
+
+.mode-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 26px;
+  margin-bottom: 24px;
+  background: #eaf0e5;
+  border: 1px solid #cedbc7;
+  border-radius: 16px;
+}
+
+.mode-entry strong {
+  font-size: 16px;
+  color: #315e50;
+}
+
+.mode-entry p {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #657161;
+}
+
+.mode-entry :deep(.el-button) {
+  margin: 0;
+  border-radius: 9px;
 }
 
 .study-card {

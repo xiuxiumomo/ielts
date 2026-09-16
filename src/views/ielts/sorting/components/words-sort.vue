@@ -1,59 +1,6 @@
-<!-- components/WordSort.vue -->
 <template>
   <div class="word-sort">
-    <!-- 核心单词信息卡 -->
-    <div class="keyword-card" :class="{ completed: props.completed }">
-      <div class="keyword-main">
-        <span class="keyword-word">{{ props.question.keyword }}</span>
-        <span class="keyword-phonetic">/{{ props.question.phonetic }}/</span>
-        <ElButton
-          class="keyword-speak"
-          type="primary"
-          circle
-          size="small"
-          aria-label="朗读当前单词"
-          @click="speakAnswer(props.question.keyword)"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="16"
-            height="16"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.6"
-            aria-hidden="true"
-          >
-            <path d="M11 5 6 9H3v6h3l5 4V5Z M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" />
-          </svg>
-        </ElButton>
-      </div>
-      <div class="keyword-right">
-        <span class="keyword-chinese">{{ props.question.chinese }}</span>
-        <span v-if="props.completed" class="completed-badge">已完成</span>
-      </div>
-    </div>
-
-    <div class="tip">
-      <div>
-        <span class="section-label">语境提示</span>
-        <p class="tip-example">{{ props.question.example }}</p>
-      </div>
-      <ElButton class="speak-button" type="primary" plain @click="speakAnswer(answerText)">
-        <svg
-          class="speak-icon"
-          viewBox="0 0 24 24"
-          width="15"
-          height="15"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.6"
-          aria-hidden="true"
-        >
-          <path d="m9 5 10 7-10 7V5Z" />
-        </svg>
-        再听一遍
-      </ElButton>
-    </div>
+    <QuestionPrompt :question="question" :completed="completed" @speak="speakAnswer" />
 
     <!-- 目标容器 放拼好的句子 -->
     <div class="section-heading sentence-heading">
@@ -114,47 +61,34 @@
 </template>
 
 <script setup lang="ts">
-import { ElButton } from "element-plus";
 import { onBeforeUnmount, ref, watch } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
 
-export interface WordItem {
+export interface IWordItem {
   id: number;
   word: string;
 }
 
-export interface WordSortQuestion {
-  answer: string;
-  keyword: string;
-  chinese: string;
-  phonetic: string;
-  example: string;
-}
+import { useSpeech } from "@/composables/use-speech";
+import type { IPracticeQuestion } from "@/types/practice";
+import QuestionPrompt from "@/components/question-prompt/index.vue";
 
 const props = defineProps<{
-  question: WordSortQuestion;
+  question: IPracticeQuestion;
   completed?: boolean;
 }>();
 const emit = defineEmits<{ success: [] }>();
 
-const sourceWords = ref<WordItem[]>([]);
-const targetWords = ref<WordItem[]>([]);
+const sourceWords = ref<IWordItem[]>([]);
+const targetWords = ref<IWordItem[]>([]);
 const isSuccess = ref(false);
 const resultText = ref("");
-const answerText = ref("");
 
-const speakAnswer = (text: string) => {
-  if (!("speechSynthesis" in window)) return;
-
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "en-US";
-  utterance.rate = 0.85;
-  utterance.pitch = 1;
-  window.speechSynthesis.speak(utterance);
-};
+const { speak: speakAnswer } = useSpeech();
+let validationTimer: ReturnType<typeof setTimeout> | undefined;
 
 const initQuestion = (shouldSpeak = false) => {
+  clearTimeout(validationTimer);
   if (!props.question || !props.question.answer) return;
 
   const words = props.question.answer.trim().split(/\s+/);
@@ -170,7 +104,6 @@ const initQuestion = (shouldSpeak = false) => {
   targetWords.value = [];
   isSuccess.value = false;
   resultText.value = "";
-  answerText.value = props.question.answer;
 
   if (shouldSpeak) {
     speakAnswer(props.question.answer);
@@ -186,9 +119,7 @@ watch(
 defineExpose({ reset: () => initQuestion() });
 
 onBeforeUnmount(() => {
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-  }
+  clearTimeout(validationTimer);
 });
 
 const moveWordToTarget = (id: number) => {
@@ -199,7 +130,7 @@ const moveWordToTarget = (id: number) => {
   targetWords.value.push(word);
 
   if (sourceWords.value.length === 0) {
-    setTimeout(validateAnswer, 400);
+    validationTimer = setTimeout(validateAnswer, 400);
   }
 };
 
@@ -234,106 +165,10 @@ const validateAnswer = () => {
   width: 100%;
 }
 
-.keyword-card {
-  padding: 34px 0 28px;
-}
-
-.keyword-main {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 16px;
-}
-
-.keyword-word {
-  max-width: 100%;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(36px, 5vw, 52px);
-  font-weight: 400;
-  line-height: 1.2;
-  letter-spacing: -1px;
-  color: #294b3e;
-  overflow-wrap: anywhere;
-}
-
-.keyword-phonetic {
-  font-family: "Segoe UI", sans-serif;
-  font-size: 15px;
-  color: #7c887d;
-}
-
-.keyword-speak {
-  width: 32px;
-  height: 32px;
-  margin: 0;
-  color: #456653;
-  background: #edf2e9;
-  border-color: #e0e8db;
-}
-
-.keyword-right {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.keyword-chinese {
-  font-size: 14px;
-  line-height: 1.7;
-  color: #657161;
-}
-
-.completed-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 5px 11px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #fff;
-  background: #3d8b52;
-  border-radius: 999px;
-  box-shadow: 0 2px 6px #3d8b5240;
-}
-
-.tip {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  margin-bottom: 28px;
-  background: #f4f5ed;
-  border-left: 3px solid #b7c6a6;
-  border-radius: 0 10px 10px 0;
-  gap: 20px;
-}
-
 .section-label {
   font-size: 11px;
   letter-spacing: 1.5px;
   color: #75806e;
-}
-
-.tip-example {
-  margin: 8px 0 0;
-  font-size: 14px;
-  line-height: 1.9;
-  color: #495744;
-  overflow-wrap: anywhere;
-}
-
-.speak-button {
-  flex-shrink: 0;
-  height: 34px;
-  font-size: 12px;
-  background: transparent;
-  border-color: #d7dfce;
-  border-radius: 7px;
-}
-
-.speak-icon {
-  margin-right: 6px;
 }
 
 .drag-hint {
@@ -487,21 +322,6 @@ const validateAnswer = () => {
 }
 
 @media (width <= 600px) {
-  .keyword-card {
-    padding: 26px 0 22px;
-  }
-
-  .keyword-main {
-    gap: 12px;
-  }
-
-  .tip {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 16px;
-    gap: 12px;
-  }
-
   .target-box {
     padding: 14px;
   }

@@ -1,17 +1,5 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-const routes: Array<RouteRecordRaw> = [
-  {
-    path: "/",
-    name: "home",
-    component: () => import("@/views/ielts/index.vue"),
-  },
-
-  {
-    path: "/:pathMatch(.*)*",
-    name: "NotFund",
-    component: () => import("@/views/404.vue"),
-  },
-];
+import { createRouter, createWebHistory } from "vue-router";
+import { routes } from "@/router/routes";
 
 const router = createRouter({
   history: createWebHistory(),
