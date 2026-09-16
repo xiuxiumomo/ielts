@@ -17,11 +17,36 @@
         </div>
         <template v-else-if="currentQuestion">
           <div class="question-toolbar">
-            <span class="lesson-label"
-              >单词与语境 <span class="toolbar-divider">/</span>
-              <strong>{{ String(currentIndex + 1).padStart(2, "0") }}</strong>
-              <span class="total-count">/ {{ questionList.length }}</span></span
-            >
+            <div class="question-heading">
+              <span class="lesson-label"
+                >单词与语境 <span class="toolbar-divider">/</span>
+                <strong>{{ String(currentIndex + 1).padStart(2, "0") }}</strong>
+                <span class="total-count">/ {{ questionList.length }}</span></span
+              >
+              <span
+                class="completion-badge"
+                :class="{ 'is-completed': isCurrentCompleted }"
+                role="status"
+              >
+                <svg
+                  v-if="isCurrentCompleted"
+                  aria-hidden="true"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    d="m3 8 3 3 7-7"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                {{ isCurrentCompleted ? "已做" : "未做" }}
+              </span>
+            </div>
             <span class="practice-status">{{
               isCurrentCompleted ? "已完成 · 可以再次温习" : "专注当下这一题"
             }}</span>
@@ -159,17 +184,13 @@ const prevQuestion = () => {
   }
 };
 
-// 切换下一题
+// 随机切换下一题，避免抽到当前题目
 const nextQuestion = () => {
-  if (!questionList.value.length) return;
-  currentIndex.value += 1;
-  if (currentIndex.value >= questionList.value.length) {
-    ElMessage.success({
-      message: "已到最后一题，返回第一题",
-      duration: 2000,
-    });
-    currentIndex.value = 0;
-  }
+  const total = questionList.value.length;
+  if (total <= 1) return;
+
+  const randomIndex = Math.floor(Math.random() * (total - 1));
+  currentIndex.value = randomIndex >= currentIndex.value ? randomIndex + 1 : randomIndex;
 };
 
 // 重置当前题目
@@ -268,6 +289,34 @@ h1 span {
   gap: 12px;
   padding-bottom: 22px;
   border-bottom: 1px solid #ecece4;
+}
+
+.question-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.completion-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #697367;
+  white-space: nowrap;
+  background: #f5f5ef;
+  border: 1px solid #e3e5dc;
+  border-radius: 999px;
+  gap: 5px;
+}
+
+.completion-badge.is-completed {
+  color: #315e50;
+  background: #edf5ee;
+  border-color: #c8dbce;
 }
 
 .lesson-label {

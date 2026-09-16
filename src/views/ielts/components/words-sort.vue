@@ -56,8 +56,9 @@
     </div>
 
     <!-- 目标容器 放拼好的句子 -->
-    <div class="section-heading">
-      <span class="section-label">你的句子</span><span>拖动词块，调整顺序</span>
+    <div class="section-heading sentence-heading">
+      <span class="section-label">你的句子</span>
+      <span class="drag-hint">试着拖动词块调整顺序</span>
     </div>
     <VueDraggable
       v-model="targetWords"
@@ -99,7 +100,14 @@
       >
     </div>
 
-    <div class="result" :class="{ success: isSuccess }" role="status" aria-live="polite">
+    <div
+      class="result"
+      :class="{ success: isSuccess, error: resultText && !isSuccess }"
+      role="status"
+      aria-live="polite"
+    >
+      <span v-if="isSuccess" class="result-icon" aria-hidden="true">✓</span>
+      <span v-else-if="resultText" class="result-icon" aria-hidden="true">!</span>
       {{ resultText || "按顺序选择单词，完成后将自动检查答案。" }}
     </div>
   </div>
@@ -278,11 +286,15 @@ const validateAnswer = () => {
 }
 
 .completed-badge {
-  padding: 3px 9px;
-  font-size: 11px;
-  color: #4c7149;
-  background: #edf3e8;
-  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: #3d8b52;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px #3d8b5240;
 }
 
 .tip {
@@ -324,14 +336,25 @@ const validateAnswer = () => {
   margin-right: 6px;
 }
 
+.drag-hint {
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8b5d28;
+  background: #fff4df;
+  border: 1px solid #f0d39f;
+  border-radius: 6px;
+}
+
 .section-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  margin-top: 4px;
   margin-bottom: 12px;
   font-size: 11px;
   color: #858d80;
+  gap: 12px;
 }
 
 .target-box {
@@ -421,15 +444,46 @@ const validateAnswer = () => {
 }
 
 .result {
-  min-height: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+  padding: 10px 14px;
   margin: 20px 0 24px;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 600;
   line-height: 1.8;
   color: #8a7961;
+  background: #fff8ed;
+  border: 1px solid #f0dfc1;
+  border-radius: 8px;
+}
+
+.result-icon {
+  display: inline-grid;
+  width: 20px;
+  height: 20px;
+  font-size: 13px;
+  color: #fff;
+  background: #bc7a2d;
+  border-radius: 50%;
+  place-items: center;
 }
 
 .result.success {
-  color: #3f7449;
+  color: #236b39;
+  background: #edf8ef;
+  border-color: #b8ddbf;
+}
+
+.result.success .result-icon {
+  background: #3d8b52;
+}
+
+.result.error {
+  color: #9a5a1e;
+  background: #fff1dc;
+  border-color: #efc988;
 }
 
 @media (width <= 600px) {

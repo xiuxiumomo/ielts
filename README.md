@@ -1,6 +1,21 @@
-# 英语单词练习 · The Vocabulary Notebook
+# IELTS Vocabulary Practice · 英语单词练习
+
+[![Vue 3](https://img.shields.io/badge/Vue.js-3-42b883?logo=vue.js&logoColor=white)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5-646cff?logo=vite&logoColor=white)](https://vitejs.dev/)
+
+> A Vue 3 IELTS vocabulary practice app with random questions, sentence ordering, pronunciation, and local progress tracking.
+>
+> 基于 Vue 3 的雅思词汇练习应用，支持随机题目、单词排序、句子重组、语音朗读和本地学习进度保存。
+
+**Keywords:** IELTS vocabulary, IELTS words, English vocabulary, English learning, vocabulary practice, sentence ordering, word game, Vue 3, TypeScript, Vite, Element Plus, 雅思词汇, 英语单词, 英语学习
 
 [中文](#中文) | [English](#english)
+
+
+## 在线体验地址 
+
+https://ielts.xiuxiumomo.com/
 
 ## 中文
 
