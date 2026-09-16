@@ -6,7 +6,7 @@
 
 基于 Vue 3 和 TypeScript 的英语词汇练习页面，通过单词释义、语音朗读和句子排序，在语境中练习 IELTS 词汇。
 
-页面入口：`/english-words`。启动项目后，可访问 `http://localhost:8844/english-words`（端口以实际启动输出为准）。
+页面入口：`/`。启动项目后，可访问 `http://localhost:8844/`（端口以实际启动输出为准）。
 
 ### 当前功能
 
@@ -65,7 +65,7 @@
 
 An English vocabulary practice page built with Vue 3 and TypeScript. It combines definitions, speech playback, and sentence ordering to help learners practice IELTS vocabulary in context.
 
-Route: `/english-words`. After starting the project, open `http://localhost:8844/english-words` (use the actual port reported by the development server).
+Route: `/`. After starting the project, open `http://localhost:8844/` (use the actual port reported by the development server).
 
 ### Current features
 

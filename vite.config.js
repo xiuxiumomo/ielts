@@ -55,7 +55,7 @@ export default defineConfig({
           threshold: 10240, // 如果体积大于阈值，将被压缩，单位为b，体积过小时请不要压缩，以免适得其反
           algorithm: "gzip", // 压缩算法，可选['gzip'，' brotliccompress '，'deflate '，'deflateRaw']
           ext: ".gz",
-          deleteOriginFile: true, // 源文件压缩后是否删除(我为了看压缩后的效果，先选择了true)
+          deleteOriginFile: false, // 保留原始资源，Cloudflare Pages 需要直接提供 JS/CSS 文件
         }),
       ],
       output: {
